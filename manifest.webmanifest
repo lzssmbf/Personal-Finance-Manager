@@ -1,11 +1,11 @@
 {
   "name": "Personal Finance Manager",
-  "short_name": "PFM",
+  "short_name": "Finance",
   "description": "A private personal finance tracker",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#edf0f6",
-  "theme_color": "#edf0f6",
+  "background_color": "#e8ebf3",
+  "theme_color": "#e8ebf3",
   "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
 }
