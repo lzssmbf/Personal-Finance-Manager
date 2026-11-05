@@ -16,17 +16,271 @@
 </main><nav class="bottom-nav" aria-label="Main navigation"><button class="tab-button" type="button" data-tab="home" aria-current="page"><span class="icon">⌂</span>Home</button><button class="tab-button" type="button" data-tab="calendar"><span class="icon">▦</span>Calendar</button><button class="tab-button" type="button" data-tab="add"><span class="icon">＋</span>Add</button><button class="tab-button" type="button" data-tab="activity"><span class="icon">≡</span>Activity</button><button class="tab-button" type="button" data-tab="more"><span class="icon">•••</span>More</button></nav>
 <div class="modal" id="dayModal" aria-hidden="true"><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalDate"><div class="section-head"><h2 id="modalDate"></h2><button class="btn" id="closeModal" type="button" aria-label="Close">✕</button></div><div class="note">Attendance</div><div class="choices" style="margin-top:8px"><button class="choice" id="presentBtn" type="button">Present</button><button class="choice absent" id="absentBtn" type="button">Absent</button></div><div class="note" style="margin-top:14px">Overtime pay</div><div class="choices" id="otChoices" style="margin-top:8px"><button class="choice" data-ot="none" type="button">None</button><button class="choice" data-ot="half" type="button">Half day</button><button class="choice" data-ot="full" type="button">Full day</button><button class="choice" data-ot="custom" type="button">Custom</button></div><div class="field hidden" id="customWrap" style="margin-top:10px"><label for="customAmount">Custom amount (NT$)</label><input id="customAmount" type="number" min="0" step="1" inputmode="decimal" placeholder="0"></div><div class="modal-actions"><button class="btn" id="cancelDay" type="button">Cancel</button><button class="btn primary" id="saveDay" type="button">Save day</button></div></section></div>
 <script>
-'use strict';const KEY='finance_manager_data_v1',defaults={baseSalary:32000,rentAllowance:5000,transportAllowance:1200,healthInsuranceAllowance:400,records:{},transactions:[]},$=id=>document.getElementById(id),expCats=['Food & Dining','Education','Transportation','Shopping','Utilities & Bills','Entertainment','Healthcare','Misc'],incCats=['Freelance & Side Work','Investments','Selling Items','Bonus / Gift','Other Income'];const defaultMonth=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`},localDate=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,money=x=>'NT$'+Math.round(Number(x)||0).toLocaleString('en-US'),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY)||'null');return {...defaults,...(x||{}),records:x?.records&&typeof x.records==='object'?x.records:{},transactions:Array.isArray(x?.transactions)?x.transactions:[]}}catch{return {...defaults}}}let state=load(),editing=null,draft={absent:false,mode:'none',amount:''};function save(){try{localStorage.setItem(KEY,JSON.stringify(state));$('status').textContent='Saved on this device.';return true}catch{$('status').textContent='Could not save. Export a backup.';return false}}
-function weekday(date){let [y,m,d]=date.split('-').map(Number);return new Date(y,m-1,d).getDay()}function info(month){let [y,m]=month.split('-').map(Number),days=new Date(y,m,0).getDate(),first=new Date(y,m-1,1).getDay(),half=0,full=0;for(let d=1;d<=days;d++){let w=new Date(y,m-1,d).getDay();if([1,2,3].includes(w))half++;else if([0,5,6].includes(w))full++}let fde=half*.5+full,rate=fde?state.baseSalary/fde:0;return {y,m,days,first,half,full,fde,fullRate:rate,halfRate:rate/2}}
-function calc(month){let i=info(month),deductions=0,ot=0,tx=state.transactions.filter(t=>String(t.date||'').startsWith(month));for(let [date,r] of Object.entries(state.records)){if(!date.startsWith(month)||!r)continue;let w=weekday(date);if(r.absent)deductions+=[1,2,3].includes(w)?i.halfRate:[0,5,6].includes(w)?i.fullRate:0;ot+=Math.max(0,Number(r.overtime)||0)}let income=tx.filter(t=>t.type==='income').reduce((s,t)=>s+(Number(t.amount)||0),0),expenses=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+(Number(t.amount)||0),0),salary=state.baseSalary-deductions+state.rentAllowance+state.transportAllowance+state.healthInsuranceAllowance+ot;return {...i,deductions,ot,income,expenses,salary,net:salary+income-expenses}}
-function render(){let month=state.currentMonth||defaultMonth();$('monthInput').value=month;let v=calc(month);$('statsCards').innerHTML=`<article class="card stat"><div class="label">Net balance</div><div class="value ${v.net<0?'red':'blue'}">${money(v.net)}</div></article><article class="card stat"><div class="label">Job salary</div><div class="value green">${money(v.salary)}</div></article><article class="card stat"><div class="label">Expenses</div><div class="value red">${money(v.expenses)}</div></article>`;$('homeIncome').textContent=money(v.income);$('homeOvertime').textContent=money(v.ot);$('salaryNote').textContent=`Estimated from ${money(state.baseSalary)} base salary and this month's recorded absences and overtime.`;let rows=[['Base salary',state.baseSalary,''],['Rent allowance',state.rentAllowance,'+'],['Transport allowance',state.transportAllowance,'+'],['Health insurance',state.healthInsuranceAllowance,'+'],['Overtime',v.ot,'+'],['Absence deductions',v.deductions,'−'],['Calculated job salary',v.salary,'+']];$('salaryBreakdown').innerHTML=rows.map((r,n)=>`<div class="money-row ${n===rows.length-1?'total':''}"><span>${r[0]}</span><strong>${r[2]}${money(r[1])}</strong></div>`).join('')+`<p class="note">${v.half} half-days and ${v.full} full-days in month; daily rate uses ${v.fde} full-day equivalents.</p>`;renderCalendar(month);renderTx(month)}
-function renderCalendar(month){let i=info(month),html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(n=>`<div class="day-name">${n}</div>`).join('');for(let n=0;n<i.first;n++)html+='<span></span>';for(let d=1;d<=i.days;d++){let date=`${month}-${String(d).padStart(2,'0')}`,w=weekday(date),off=w===4,r=state.records[date]||{},half=[1,2,3].includes(w),cls=off?'off':r.absent?'absent':half?'':'full',tag=off?'Off':r.absent?'Absent':half?'Half':'Full',ot=Number(r.overtime)||0;html+=`<button type="button" class="day ${cls}" data-date="${date}" ${off?'disabled':''} aria-label="${date}, ${tag}${ot?`, overtime ${money(ot)}`:''}"><span>${d}</span><span class="tag">${tag}</span>${ot?`<span class="ot">+${money(ot)}</span>`:''}</button>`}$('calendar').innerHTML=html}
-function renderTx(month){let tx=state.transactions.filter(t=>String(t.date||'').startsWith(month)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));$('txCount').textContent=`${tx.length} ${tx.length===1?'entry':'entries'}`;$('txList').innerHTML=tx.length?tx.map(t=>`<article class="tx"><div class="tx-main"><div class="tx-desc">${esc(t.description)}</div><div class="tx-meta">${esc(t.category||'Misc')} · ${esc(t.date)}</div></div><div class="tx-right"><strong class="${t.type==='income'?'green':'red'}">${t.type==='income'?'+':'−'}${money(t.amount)}</strong><button class="delete" type="button" data-delete="${esc(t.id)}" aria-label="Delete ${esc(t.description)}">×</button></div></article>`).join(''):'<div class="empty">No entries for this month yet.</div>'}
-function categories(){let old=$('txCategory').value,items=$('txType').value==='income'?incCats:expCats;$('txCategory').innerHTML=items.map(x=>`<option>${esc(x)}</option>`).join('');if(items.includes(old))$('txCategory').value=old}function switchTab(name){document.querySelectorAll('.tab-page').forEach(p=>p.classList.toggle('active',p.dataset.page===name));document.querySelectorAll('.tab-button').forEach(b=>b.dataset.tab===name?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));window.scrollTo({top:0,behavior:'smooth'})}
-function updateModal(){let v=calc(state.currentMonth);$('presentBtn').classList.toggle('selected',!draft.absent);$('absentBtn').classList.toggle('selected',draft.absent);document.querySelectorAll('[data-ot]').forEach(b=>b.classList.toggle('selected',b.dataset.ot===draft.mode));document.querySelector('[data-ot="half"]').textContent=`Half (${money(v.halfRate)})`;document.querySelector('[data-ot="full"]').textContent=`Full (${money(v.fullRate)})`;$('customWrap').classList.toggle('hidden',draft.mode!=='custom');$('customAmount').value=draft.amount}
-function openDay(date){editing=date;let r=state.records[date]||{},v=calc(state.currentMonth),value=Number(r.overtime)||0;draft={absent:!!r.absent,mode:'none',amount:''};if(value===Math.round(v.halfRate)&&value>0)draft.mode='half';else if(value===Math.round(v.fullRate)&&value>0)draft.mode='full';else if(value>0){draft.mode='custom';draft.amount=String(value)}$('modalDate').textContent=date;updateModal();$('dayModal').classList.add('show');$('dayModal').setAttribute('aria-hidden','false')}function closeDay(){$('dayModal').classList.remove('show');$('dayModal').setAttribute('aria-hidden','true');editing=null}function saveDay(){if(!editing)return;let v=calc(state.currentMonth),ot=draft.mode==='half'?Math.round(v.halfRate):draft.mode==='full'?Math.round(v.fullRate):draft.mode==='custom'?Math.max(0,Number($('customAmount').value)||0):0;state.records[editing]={absent:draft.absent,overtime:ot};save();render();closeDay()}
-document.querySelector('.bottom-nav').addEventListener('click',e=>{let b=e.target.closest('[data-tab]');if(b)switchTab(b.dataset.tab)});$('calendar').addEventListener('click',e=>{let b=e.target.closest('[data-date]');if(b&&!b.disabled)openDay(b.dataset.date)});$('monthInput').addEventListener('change',e=>{state.currentMonth=e.target.value||defaultMonth();save();render()});$('txType').addEventListener('change',categories);$('txForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($('txAmount').value),description=$('txDescription').value.trim(),date=$('txDate').value;if(!description||!date||!Number.isFinite(amount)||amount<=0)return;state.transactions.push({id:globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random()}`,type:$('txType').value,category:$('txCategory').value,description,amount,date});if(save()){e.target.reset();$('txType').value='expense';categories();$('txDate').value=localDate();render();switchTab('activity')}});$('txList').addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if(b&&confirm('Delete this transaction?')){state.transactions=state.transactions.filter(t=>String(t.id)!==b.dataset.delete);save();render()}});
-$('presentBtn').addEventListener('click',()=>{draft.absent=false;updateModal()});$('absentBtn').addEventListener('click',()=>{draft.absent=true;updateModal()});$('otChoices').addEventListener('click',e=>{let b=e.target.closest('[data-ot]');if(b){draft.mode=b.dataset.ot;updateModal()}});$('customAmount').addEventListener('input',e=>draft.amount=e.target.value);$('closeModal').addEventListener('click',closeDay);$('cancelDay').addEventListener('click',closeDay);$('saveDay').addEventListener('click',saveDay);$('dayModal').addEventListener('click',e=>{if(e.target===$('dayModal'))closeDay()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDay()});
-$('exportBtn').addEventListener('click',()=>{let blob=new Blob([JSON.stringify({app:'Personal Finance Manager',version:1,exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`finance-backup-${defaultMonth()}.json`;a.click();URL.revokeObjectURL(url);$('status').textContent='Backup exported. Save the JSON file somewhere safe.'});$('importBtn').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',e=>{let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=()=>{try{let parsed=JSON.parse(reader.result),incoming=parsed.data||parsed;if(!Array.isArray(incoming.transactions)||!incoming.records||typeof incoming.records!=='object')throw Error('invalid backup');if(!confirm('Import this backup? It will replace records on this device.'))return;state={...defaults,...incoming,records:incoming.records,transactions:incoming.transactions};if(!/^\d{4}-\d{2}$/.test(state.currentMonth||''))state.currentMonth=defaultMonth();if(save())render();$('status').textContent='Backup imported successfully.'}catch{$('status').textContent='Could not import that file. Choose a valid finance backup JSON file.'}e.target.value=''};reader.readAsText(file)});$('txDate').value=localDate();categories();render();
+'use strict';
+const KEY='finance_manager_data_v1';
+const defaults={baseSalary:32000,rentAllowance:5000,transportAllowance:1200,healthInsuranceAllowance:400,records:{},transactions:[]};
+const expCats=['Food & Dining','Education','Transportation','Shopping','Utilities & Bills','Entertainment','Healthcare','Misc'];
+const incCats=['Freelance & Side Work','Investments','Selling Items','Bonus / Gift','Other Income'];
+const $=id=>document.getElementById(id);
+const defaultMonth=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;};
+const localDate=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const money=v=>'NT$'+Math.round(Number(v)||0).toLocaleString('en-US');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(!raw) return {...defaults};
+    const saved=JSON.parse(raw);
+    return {
+      ...defaults,
+      ...(saved||{}),
+      records:saved?.records && typeof saved.records==='object' ? saved.records : {},
+      transactions:Array.isArray(saved?.transactions) ? saved.transactions : []
+    };
+  }catch{return {...defaults}};
+}
+
+let state=load(),editing=null,draft={absent:false,mode:'none',amount:''};
+
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(state));
+    $('status').textContent='Saved on this device.';
+    return true;
+  }catch{
+    $('status').textContent='Could not save. Export a backup.';
+    return false;
+  }
+}
+
+function weekday(date){
+  const [y,m,d]=date.split('-').map(Number);
+  return new Date(y,m-1,d).getDay();
+}
+
+function info(month){
+  const [y,m]=month.split('-').map(Number);
+  const days=new Date(y,m,0).getDate();
+  const first=new Date(y,m-1,1).getDay();
+  let half=0,full=0;
+  for(let d=1;d<=days;d++){
+    const w=new Date(y,m-1,d).getDay();
+    if([1,2,3].includes(w)) half++;
+    else if([0,5,6].includes(w)) full++;
+  }
+  const fde=half*.5+full;
+  const rate=fde ? state.baseSalary / fde : 0;
+  return {y,m,days,first,half,full,fde,fullRate:rate,halfRate:rate/2};
+}
+
+function calc(month){
+  const i=info(month);
+  let deductions=0,ot=0;
+  const tx=state.transactions.filter(t=>String(t.date||'').startsWith(month));
+  for(const [date,r] of Object.entries(state.records)){
+    if(!date.startsWith(month) || !r) continue;
+    const w=weekday(date);
+    if(r.absent){
+      deductions += [1,2,3].includes(w) ? i.halfRate : ([0,5,6].includes(w) ? i.fullRate : 0);
+    }
+    ot += Math.max(0,Number(r.overtime)||0);
+  }
+  const income=tx.filter(t=>t.type==='income').reduce((sum,t)=>sum+(Number(t.amount)||0),0);
+  const expenses=tx.filter(t=>t.type==='expense').reduce((sum,t)=>sum+(Number(t.amount)||0),0);
+  const salary=state.baseSalary - deductions + state.rentAllowance + state.transportAllowance + state.healthInsuranceAllowance + ot;
+  return {...i,deductions,ot,income,expenses,salary,net:salary + income - expenses};
+}
+
+function render(){
+  const month=state.currentMonth || defaultMonth();
+  $('monthInput').value=month;
+  const v=calc(month);
+  $('statsCards').innerHTML=`<article class="card stat"><div class="label">Net balance</div><div class="value ${v.net<0?'red':'blue'}">${money(v.net)}</div></article><article class="card stat"><div class="label">Job salary</div><div class="value green">${money(v.salary)}</div></article><article class="card stat"><div class="label">Expenses</div><div class="value red">${money(v.expenses)}</div></article>`;
+  $('homeIncome').textContent=money(v.income);
+  $('homeOvertime').textContent=money(v.ot);
+  $('salaryNote').textContent=`Estimated from ${money(state.baseSalary)} base salary and this month's recorded absences and overtime.`;
+  const rows=[['Base salary',state.baseSalary,''],['Rent allowance',state.rentAllowance,'+'],['Transport allowance',state.transportAllowance,'+'],['Health insurance',state.healthInsuranceAllowance,'+'],['Overtime',v.ot,'+'],['Absence deductions',v.deductions,'−'],['Calculated job salary',v.salary,'+']];
+  $('salaryBreakdown').innerHTML=rows.map((r,n)=>`<div class="money-row ${n===rows.length-1?'total':''}"><span>${r[0]}</span><strong>${r[2]}${money(r[1])}</strong></div>`).join('')+`<p class="note">${v.half} half-days and ${v.full} full-days in month; daily rate uses ${v.fde} full-day equivalents.</p>`;
+  renderCalendar(month);
+  renderTx(month);
+}
+
+function renderCalendar(month){
+  const i=info(month);
+  let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(n=>`<div class="day-name">${n}</div>`).join('');
+  for(let n=0;n<i.first;n++) html += '<span></span>';
+  for(let d=1;d<=i.days;d++){
+    const date=`${month}-${String(d).padStart(2,'0')}`;
+    const w=weekday(date);
+    const off=w===4;
+    const r=state.records[date] || {};
+    const half=[1,2,3].includes(w);
+    const cls=off ? 'off' : r.absent ? 'absent' : half ? '' : 'full';
+    const tag=off ? 'Off' : r.absent ? 'Absent' : half ? 'Half' : 'Full';
+    const ot=Number(r.overtime)||0;
+    html += `<button type="button" class="day ${cls}" data-date="${date}" ${off ? 'disabled' : ''} aria-label="${date}, ${tag}${ot ? `, overtime ${money(ot)}` : ''}"><span>${d}</span><span class="tag">${tag}</span>${ot ? `<span class="ot">+${money(ot)}</span>` : ''}</button>`;
+  }
+  $('calendar').innerHTML=html;
+}
+
+function renderTx(month){
+  const tx=state.transactions.filter(t=>String(t.date||'').startsWith(month)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  $('txCount').textContent=`${tx.length} ${tx.length===1 ? 'entry' : 'entries'}`;
+  $('txList').innerHTML = tx.length ? tx.map(t=>`<article class="tx"><div class="tx-main"><div class="tx-desc">${esc(t.description)}</div><div class="tx-meta">${esc(t.category||'Misc')} · ${esc(t.date)}</div></div><div class="tx-right"><strong class="${t.type==='income' ? 'green' : 'red'}">${t.type==='income' ? '+' : '−'}${money(t.amount)}</strong><button class="delete" type="button" data-delete="${esc(t.id)}" aria-label="Delete ${esc(t.description)}">×</button></div></article>`).join('') : '<div class="empty">No entries for this month yet.</div>';
+}
+
+function categories(){
+  const old=$('txCategory').value;
+  const items=$('txType').value==='income' ? incCats : expCats;
+  $('txCategory').innerHTML=items.map(x=>`<option>${esc(x)}</option>`).join('');
+  if(items.includes(old)) $('txCategory').value=old;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.toggle('active',p.dataset.page===name));
+  document.querySelectorAll('.tab-button').forEach(b=>b.dataset.tab===name ? b.setAttribute('aria-current','page') : b.removeAttribute('aria-current'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateModal(){
+  const v=calc(state.currentMonth || defaultMonth());
+  $('presentBtn').classList.toggle('selected',!draft.absent);
+  $('absentBtn').classList.toggle('selected',draft.absent);
+  document.querySelectorAll('[data-ot]').forEach(b=>b.classList.toggle('selected',b.dataset.ot===draft.mode));
+  document.querySelector('[data-ot="half"]').textContent=`Half (${money(v.halfRate)})`;
+  document.querySelector('[data-ot="full"]').textContent=`Full (${money(v.fullRate)})`;
+  $('customWrap').classList.toggle('hidden',draft.mode!=='custom');
+  $('customAmount').value=draft.amount;
+}
+
+function openDay(date){
+  editing=date;
+  const r=state.records[date] || {};
+  const v=calc(state.currentMonth || defaultMonth());
+  const value=Number(r.overtime)||0;
+  draft={absent:!!r.absent,mode:'none',amount:''};
+  if(value===Math.round(v.halfRate) && value>0) draft.mode='half';
+  else if(value===Math.round(v.fullRate) && value>0) draft.mode='full';
+  else if(value>0){ draft.mode='custom'; draft.amount=String(value); }
+  $('modalDate').textContent=date;
+  updateModal();
+  $('dayModal').classList.add('show');
+  $('dayModal').setAttribute('aria-hidden','false');
+}
+
+function closeDay(){
+  $('dayModal').classList.remove('show');
+  $('dayModal').setAttribute('aria-hidden','true');
+  editing=null;
+}
+
+function saveDay(){
+  if(!editing) return;
+  const v=calc(state.currentMonth || defaultMonth());
+  const ot=draft.mode==='half' ? Math.round(v.halfRate) : (draft.mode==='full' ? Math.round(v.fullRate) : (draft.mode==='custom' ? Math.max(0,Number($('customAmount').value)||0) : 0));
+  state.records[editing]={absent:draft.absent,overtime:ot};
+  save();
+  render();
+  closeDay();
+}
+
+function exportBackup(){
+  const blob=new Blob([JSON.stringify({app:'Personal Finance Manager',version:1,exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`finance-backup-${defaultMonth()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  $('status').textContent='Backup exported. Save the JSON file somewhere safe.';
+}
+
+function importBackup(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+      const incoming=parsed.data || parsed;
+      if(!Array.isArray(incoming.transactions) || !incoming.records || typeof incoming.records!=='object') throw new Error('invalid backup');
+      if(!confirm('Import this backup? It will replace records on this device.')) return;
+      state={...defaults,...incoming,records:incoming.records,transactions:incoming.transactions};
+      if(!/^\d{4}-\d{2}$/.test(state.currentMonth || '')) state.currentMonth=defaultMonth();
+      if(save()) render();
+      $('status').textContent='Backup imported successfully.';
+    }catch{
+      $('status').textContent='Could not import that file. Choose a valid finance backup JSON file.';
+    }finally{
+      $('importFile').value='';
+    }
+  };
+  reader.onerror=()=>{$('status').textContent='Could not read that file.';};
+  reader.readAsText(file);
+}
+
+document.querySelector('.bottom-nav').addEventListener('click',e=>{
+  const b=e.target.closest('[data-tab]');
+  if(b) switchTab(b.dataset.tab);
+});
+
+$('monthInput').addEventListener('change',e=>{
+  state.currentMonth=e.target.value || defaultMonth();
+  save();
+  render();
+});
+
+$('txType').addEventListener('change',categories);
+$('txForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const amount=Number($('txAmount').value);
+  const description=$('txDescription').value.trim();
+  const date=$('txDate').value;
+  if(!description || !date || !Number.isFinite(amount) || amount<=0) return;
+  state.transactions.push({id:globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,type:$('txType').value,category:$('txCategory').value,description,amount,date});
+  if(save()){
+    e.target.reset();
+    $('txType').value='expense';
+    categories();
+    $('txDate').value=localDate();
+    render();
+    switchTab('activity');
+  }
+});
+
+$('calendar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-date]');
+  if(b && !b.disabled) openDay(b.dataset.date);
+});
+
+$('txList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-delete]');
+  if(b && confirm('Delete this transaction?')){
+    state.transactions=state.transactions.filter(t=>String(t.id)!==b.dataset.delete);
+    save();
+    render();
+  }
+});
+
+$('presentBtn').addEventListener('click',()=>{draft.absent=false;updateModal();});
+$('absentBtn').addEventListener('click',()=>{draft.absent=true;updateModal();});
+$('otChoices').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ot]');
+  if(b){ draft.mode=b.dataset.ot; updateModal(); }
+});
+$('customAmount').addEventListener('input',e=>{draft.amount=e.target.value;});
+$('closeModal').addEventListener('click',closeDay);
+$('cancelDay').addEventListener('click',closeDay);
+$('saveDay').addEventListener('click',saveDay);
+$('dayModal').addEventListener('click',e=>{if(e.target=== $('dayModal')) closeDay();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeDay();});
+$('exportBtn').addEventListener('click',exportBackup);
+$('importBtn').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',e=>importBackup(e.target.files[0]));
+
+$('txDate').value=localDate();
+categories();
+render();
 </script></body></html>
