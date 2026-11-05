@@ -1,1013 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Finance Manager</title>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Finance" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Finance">
+  <title>Personal Finance Manager</title>
   <style>
-    :root{
-      --bg:#f8fafc;
-      --panel:#ffffff;
-      --soft:#f1f5f9;
-      --border:#e2e8f0;
-      --text:#0f172a;
-      --muted:#64748b;
-      --blue:#2563eb;
-      --indigo:#4f46e5;
-      --green:#16a34a;
-      --red:#ef4444;
-      --amber:#f59e0b;
-      --purple:#8b5cf6;
-      --shadow:0 10px 25px rgba(15, 23, 42, 0.08);
-    }
-
-    *{box-sizing:border-box}
-    html, body{
-      margin:0;
-      height:100%;
-      background:var(--bg);
-      color:var(--text);
-      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    body{
-      min-height:100vh;
-      padding:18px;
-    }
-    .app{
-      max-width:1100px;
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-    }
-
-    .header{
-      background:rgba(255,255,255,0.9);
-      border:1px solid var(--border);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:16px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .brand-icon{
-      width:46px;height:46px;border-radius:16px;
-      background:linear-gradient(135deg,var(--blue),var(--indigo));
-      display:flex;align-items:center;justify-content:center;
-      color:white;font-weight:900;font-size:22px;
-      box-shadow:0 12px 22px rgba(37,99,235,0.26);
-    }
-    .title{
-      font-weight:900;font-size:clamp(1.2rem, 2vw, 2rem);
-      letter-spacing:-0.03em;
-    }
-    .subtitle{
-      font-size:0.76rem;color:var(--muted);
-      font-weight:600;
-    }
-    .month-box{
-      background:var(--soft);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:8px 10px;
-      display:flex;align-items:center;gap:8px;
-      font-weight:700;
-      color:var(--text);
-    }
-    input[type="month"], input, select, button{
-      font:inherit;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(5, minmax(0, 1fr));
-      gap:12px;
-    }
-    .stat{
-      background:white;
-      border:1px solid var(--border);
-      border-radius:20px;
-      box-shadow:var(--shadow);
-      padding:14px 16px;
-      display:flex;align-items:center;gap:12px;
-      min-height:90px;
-    }
-    .stat-icon{
-      width:44px;height:44px;border-radius:14px;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900; font-size:18px;
-    }
-    .stat-label{
-      font-size:10px;font-weight:800;letter-spacing:0.12em;
-      text-transform:uppercase;color:var(--muted);
-    }
-    .stat-value{
-      font-size:clamp(1rem,2vw,1.5rem);
-      font-weight:900; letter-spacing:-0.04em;
-      margin-top:4px;
-    }
-    .blue{background:#dbeafe;color:#1d4ed8}
-    .green{background:#dcfce7;color:#15803d}
-    .amber{background:#fef3c7;color:#b45309}
-    .red{background:#fee2e2;color:#b91c1c}
-    .indigo{background:#e0e7ff;color:#4338ca}
-
-    .panel{
-      background:white;
-      border:1px solid var(--border);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:18px;
-    }
-
-    .section-title{
-      font-size:1.05rem;
-      font-weight:900;
-      margin-bottom:12px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .calendar-wrap{
-      display:flex;flex-direction:column;gap:12px;
-    }
-    .calendar-legend{
-      display:flex;flex-wrap:wrap;gap:8px;font-size:11px;font-weight:700;color:var(--muted);
-    }
-    .legend-item{
-      display:flex;align-items:center;gap:6px;background:var(--soft);
-      border:1px solid var(--border);border-radius:999px;padding:5px 8px;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:50%;display:inline-block;
-    }
-
-    .calendar{
-      display:grid;
-      grid-template-columns:repeat(7, minmax(0,1fr));
-      gap:8px;
-    }
-    .day-name{
-      text-align:center;
-      font-size:11px;
-      font-weight:900;
-      color:var(--muted);
-      letter-spacing:0.1em;
-      text-transform:uppercase;
-      padding:4px 0;
-    }
-    .calendar-day{
-      position:relative;
-      min-height:70px;
-      border-radius:18px;
-      border:1px solid var(--border);
-      background:var(--soft);
-      display:flex;align-items:center;justify-content:center;
-      flex-direction:column;
-      cursor:pointer;
-      transition:0.15s ease;
-      user-select:none;
-      padding:4px 6px;
-    }
-    .calendar-day:hover{transform:translateY(-1px)}
-    .calendar-day.empty{background:transparent;border:none;cursor:default}
-    .day-number{font-size:1rem;font-weight:800}
-    .day-tag{font-size:9px;font-weight:800}
-    .day-absent{background:var(--red);color:white;border-color:var(--red)}
-    .day-half{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe}
-    .day-full{background:#dcfce7;color:#166534;border-color:#bbf7d0}
-    .day-off{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;cursor:default}
-    .ot-badge{
-      position:absolute;top:6px;right:8px;
-      background:#fbbf24;color:#7c2d12;
-      border-radius:999px;padding:2px 5px;
-      font-size:8px;font-weight:900;
-      border:1px solid rgba(0,0,0,0.04);
-    }
-
-    .main-grid{
-      display:grid;
-      grid-template-columns:1.2fr 0.8fr;
-      gap:16px;
-    }
-    .salary-box{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-    .money-list{
-      display:flex;flex-direction:column;gap:10px;
-    }
-    .money-row{
-      display:flex;justify-content:space-between;align-items:center;
-      color:var(--muted);font-size:0.86rem;font-weight:700;
-      padding:8px 0;border-bottom:1px solid var(--border);
-    }
-    .money-row strong{color:var(--text)}
-    .money-row.income span:last-child{color:var(--green)}
-    .money-row.expense span:last-child{color:var(--red)}
-    .money-row.total{
-      padding-top:10px;border-bottom:none;font-size:1rem;font-weight:900;color:var(--text)
-    }
-
-    .audit-box{
-      background:var(--soft);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:14px;
-    }
-    .audit-title{
-      font-size:12px;font-weight:900; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
-      margin-bottom:8px;
-    }
-    .audit-row{
-      display:flex;justify-content:space-between;gap:10px;
-      font-size:0.8rem;
-      color:var(--muted);font-weight:700;
-      padding:6px 0;
-      border-bottom:1px dashed var(--border);
-    }
-    .audit-row strong{color:var(--text)}
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0,1fr));
-      gap:12px;
-    }
-    .field{
-      display:flex;flex-direction:column;gap:6px;
-    }
-    .field label{
-      font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;
-    }
-    .field input, .field select{
-      width:100%;
-      border:1px solid var(--border);
-      background:var(--soft);
-      color:var(--text);
-      border-radius:12px;
-      padding:11px 12px;
-      font-weight:700;
-      transition:0.15s ease;
-    }
-    .field input:focus, .field select:focus{
-      outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,0.12);
-    }
-    .full{
-      grid-column:1 / -1;
-    }
-    .primary-btn{
-      width:100%;
-      border:none;border-radius:14px;
-      background:linear-gradient(135deg,var(--blue),var(--indigo));
-      color:white;font-weight:900;
-      padding:13px 16px;
-      box-shadow:0 12px 20px rgba(37,99,235,0.22);
-      cursor:pointer;
-    }
-    .primary-btn:hover{filter:brightness(1.03)}
-
-    .transaction-list{
-      display:flex;flex-direction:column;gap:10px;
-      max-height:440px;overflow:auto;
-      padding-right:4px;
-    }
-    .tx{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:10px;
-      background:var(--soft);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:12px;
-    }
-    .tx-left{
-      display:flex;align-items:center;gap:10px;
-      min-width:0;
-      flex:1;
-    }
-    .tx-icon{
-      width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-      font-size:18px;font-weight:900;
-    }
-    .tx-income{background:#dcfce7;color:#166534}
-    .tx-expense{background:#fee2e2;color:#991b1b}
-    .tx-info{min-width:0;flex:1}
-    .tx-name{
-      font-weight:900;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .tx-meta{
-      font-size:11px;color:var(--muted);font-weight:700;display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;
-    }
-    .tx-amount{
-      font-weight:900;font-size:0.95rem;white-space:nowrap;
-    }
-    .tx-income-text{color:var(--green)}
-    .tx-expense-text{color:var(--red)}
-    .delete-btn{
-      border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;padding:6px 8px;border-radius:10px;
-    }
-    .delete-btn:hover{background:#fee2e2;color:var(--red)}
-
-    .modal{
-      position:fixed;inset:0;background:rgba(15, 23, 42, 0.45);display:none;align-items:center;justify-content:center;padding:18px;
-      z-index:1000;
-    }
-    .modal.show{display:flex}
-    .modal-card{
-      background:white;border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);
-      width:min(420px,100%);padding:18px;
-    }
-    .modal-head{
-      display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;
-    }
-    .close-btn{
-      border:none;background:var(--soft);width:34px;height:34px;border-radius:10px;font-size:22px;cursor:pointer;color:var(--muted);
-    }
-    .modal-actions{
-      display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:10px;margin-top:12px;
-    }
-    .mini-btn{
-      padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--soft);font-weight:800;color:var(--text);cursor:pointer;
-    }
-    .mini-btn.active{
-      background:var(--blue);border-color:var(--blue);color:white;
-    }
-    .mini-btn.orange{
-      background:#fff7ed;border-color:#fdba74;color:#b45309;
-    }
-    .mini-btn.green{
-      background:#dcfce7;border-color:#86efac;color:#166534;
-    }
-    .mini-btn.red{
-      background:#fee2e2;border-color:#fca5a5;color:#991b1b;
-    }
-    .custom-amount{
-      display:none;
-      margin-top:10px;
-    }
-    .custom-amount.show{display:block}
-    .small-note{
-      font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;
-    }
-
-    @media (max-width: 900px){
-      .stats{grid-template-columns:repeat(2, minmax(0,1fr));}
-      .main-grid{grid-template-columns:1fr;}
-    }
-
-    @media (max-width: 520px){
-      body{padding:14px}
-      .header{padding:14px}
-      .panel{padding:14px}
-      .form-grid{grid-template-columns:1fr}
-      .salary-box{grid-template-columns:1fr}
-      .stats{grid-template-columns:1fr}
-      .calendar-day{min-height:64px}
-    }
+    :root{color-scheme:light;--bg:#f4f7fb;--card:#fff;--soft:#f1f5f9;--line:#e2e8f0;--ink:#172033;--muted:#68758a;--blue:#2563eb;--green:#15803d;--red:#dc2626;--amber:#b45309;--shadow:0 5px 18px #1720330b}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 14px calc(22px + env(safe-area-inset-bottom))}
+    button,input,select{font:inherit}button{touch-action:manipulation}.app{max-width:760px;margin:0 auto;display:grid;gap:14px}.top{padding:18px 4px 4px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:21px;font-weight:850;letter-spacing:-.04em}.sub{color:var(--muted);font-size:13px}.month{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:9px 10px;font-weight:700;color:var(--ink);max-width:160px}
+    .toolbar{display:flex;gap:8px}.btn,.icon-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:9px 12px;font-weight:750;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn:active,.icon-btn:active{transform:scale(.98)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.stat{padding:13px 10px;min-width:0}.label{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.07em}.value{font-size:clamp(16px,4.4vw,22px);font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.blue{color:var(--blue)}.green{color:var(--green)}.red{color:var(--red)}h2{font-size:17px;margin:0 0 12px;letter-spacing:-.02em}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.note{font-size:12px;color:var(--muted)}
+    details.card{padding:0;overflow:hidden}details summary{list-style:none;padding:16px;cursor:pointer;font-weight:850}details summary::-webkit-details-marker{display:none}details summary:after{content:'＋';float:right;color:var(--muted)}details[open] summary:after{content:'−'}.details-body{padding:0 16px 16px}.money-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}.money-row strong{white-space:nowrap}.money-row.total{font-size:16px;font-weight:900}
+    .calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.day-name{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:4px 0}.day{min-width:0;min-height:53px;border:1px solid var(--line);border-radius:12px;background:#eff6ff;color:#1d4ed8;padding:4px 1px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;cursor:pointer}.day.full{background:#f0fdf4;color:#166534}.day.absent{background:#dc2626;color:white;border-color:#dc2626}.day.off{background:#f1f5f9;color:#94a3b8;cursor:default}.day .tag{font-size:9px;font-weight:750;margin-top:3px}.day .ot{font-size:8px;color:#92400e;font-weight:900}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:0 0 10px}.legend span{white-space:nowrap}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:grid;gap:5px}.field label{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em}.field input,.field select{width:100%;min-height:44px;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:10px;color:var(--ink)}.field.full{grid-column:1/-1}.submit{grid-column:1/-1;min-height:46px}
+    .list{display:grid;gap:8px}.tx{border:1px solid var(--line);background:#fafcff;border-radius:13px;padding:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}.tx-main{min-width:0}.tx-desc{font-weight:800;overflow-wrap:anywhere}.tx-meta{font-size:11px;color:var(--muted)}.tx-right{display:flex;align-items:center;gap:6px;white-space:nowrap}.delete{border:0;background:transparent;color:var(--red);font-size:20px;padding:6px;cursor:pointer}.empty{text-align:center;padding:20px;color:var(--muted);font-size:14px}.backup-row{display:flex;gap:8px;flex-wrap:wrap}.status{min-height:18px;color:var(--muted);font-size:12px;margin-top:8px}.modal{position:fixed;inset:0;background:#0f172a88;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:5}.modal.show{display:flex}.modal-card{width:min(480px,100%);background:var(--card);border-radius:22px;padding:18px;max-height:90dvh;overflow:auto}.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice{min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--soft);font-weight:750;color:var(--ink)}.choice.selected{background:#dbeafe;border-color:var(--blue);color:#1d4ed8}.choice.absent.selected{background:#fee2e2;border-color:var(--red);color:var(--red)}.modal-actions{display:flex;gap:8px;margin-top:14px}.modal-actions>*{flex:1}.hidden{display:none!important}
+    @media(min-width:650px){body{padding-left:22px;padding-right:22px}.app{gap:16px}.day{min-height:66px}.calendar{gap:8px}.modal{align-items:center}.card{padding:18px}}
+    @media(max-width:370px){.brand{font-size:18px}.top{align-items:flex-start}.toolbar{flex-direction:column}.btn{padding:8px}.day{min-height:47px;border-radius:9px}.day .tag{font-size:8px}.card{padding:13px}}
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div class="brand">
-        <div class="brand-icon">$</div>
-        <div>
-          <div class="title">Finance Manager</div>
-          <div class="subtitle">Personal budget + work schedule</div>
-        </div>
-      </div>
-
-      <div class="month-box">
-        <span>📅</span>
-        <input id="monthInput" type="month" />
-      </div>
+  <main class="app">
+    <header class="top">
+      <div><div class="brand">💰 Finance Manager</div><div class="sub">Your private, on-device tracker</div></div>
+      <input class="month" id="monthInput" type="month" aria-label="Choose month">
     </header>
+    <nav class="toolbar" aria-label="Backup tools">
+      <button class="btn" id="exportBtn" type="button">⬇ Export backup</button>
+      <button class="btn" id="importBtn" type="button">⬆ Import backup</button>
+      <input id="importFile" type="file" accept=".json,application/json" class="hidden">
+    </nav>
+    <section class="stats" id="statsCards" aria-label="Monthly totals"></section>
+    <details class="card">
+      <summary>Salary calculation</summary>
+      <div class="details-body"><div class="note" id="salaryNote"></div><div id="salaryBreakdown"></div></div>
+    </details>
+    <section class="card">
+      <div class="section-head"><h2>Work calendar</h2><span class="note">Tap a workday to edit</span></div>
+      <div class="legend"><span>🔵 Half day</span><span>🟢 Full day</span><span>🔴 Absent</span><span>🟠 Overtime</span><span>Gray: day off</span></div>
+      <div class="calendar" id="calendar"></div>
+    </section>
+    <section class="card">
+      <h2>Add income or expense</h2>
+      <form id="txForm" class="form-grid">
+        <div class="field"><label for="txType">Type</label><select id="txType"><option value="expense">Expense</option><option value="income">Other income</option></select></div>
+        <div class="field"><label for="txCategory">Category</label><select id="txCategory"></select></div>
+        <div class="field"><label for="txDate">Date</label><input id="txDate" type="date" required></div>
+        <div class="field"><label for="txAmount">Amount (NT$)</label><input id="txAmount" type="number" min="0.01" step="1" inputmode="decimal" placeholder="0" required></div>
+        <div class="field full"><label for="txDescription">Description</label><input id="txDescription" type="text" maxlength="120" placeholder="e.g. Lunch or freelance work" required></div>
+        <button class="btn primary submit" type="submit">Save entry</button>
+      </form>
+    </section>
+    <section class="card">
+      <div class="section-head"><h2>Transactions</h2><span class="note" id="txCount"></span></div>
+      <div class="list" id="txList"></div>
+    </section>
+    <section class="card">
+      <h2>Backup and data</h2>
+      <p class="note">Your records are saved in this browser on this device only. Export a backup regularly. Importing a backup replaces the records currently on this device.</p>
+      <div class="backup-row"><button class="btn" id="exportBtn2" type="button">Export backup</button><button class="btn" id="importBtn2" type="button">Import backup</button></div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
 
-    <section class="stats" id="statsCards"></section>
-
-    <div class="main-grid">
-      <section class="panel">
-        <div class="calendar-wrap">
-          <div class="section-title">📆 Work Calendar</div>
-          <div class="calendar-legend">
-            <span class="legend-item"><span class="dot" style="background:#60a5fa"></span> Half day</span>
-            <span class="legend-item"><span class="dot" style="background:#4ade80"></span> Full day</span>
-            <span class="legend-item"><span class="dot" style="background:#ef4444"></span> Absent</span>
-            <span class="legend-item"><span class="dot" style="background:#fbbf24"></span> Overtime</span>
-          </div>
-          <div id="calendar" class="calendar"></div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="section-title">💰 Salary Math</div>
-        <div class="salary-box">
-          <div class="money-list" id="salaryBreakdown"></div>
-          <div class="audit-box">
-            <div class="audit-title">Details</div>
-            <div id="auditInfo"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div class="main-grid">
-      <section class="panel">
-        <div class="section-title">➕ Add entry</div>
-        <form id="txForm">
-          <div class="form-grid">
-            <div class="field">
-              <label>Type</label>
-              <select id="txType">
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Category</label>
-              <select id="txCategory"></select>
-            </div>
-
-            <div class="field">
-              <label>Date</label>
-              <input id="txDate" type="date" />
-            </div>
-
-            <div class="field">
-              <label>Amount</label>
-              <input id="txAmount" type="number" min="0" step="1" placeholder="0" />
-            </div>
-
-            <div class="field full">
-              <label>Description</label>
-              <input id="txDescription" type="text" placeholder="Example: Groceries, freelance project, bus ticket..." />
-            </div>
-
-            <div class="full">
-              <button class="primary-btn" type="submit">Save entry</button>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel">
-        <div class="section-title">📋 Transaction list</div>
-        <div id="txList" class="transaction-list"></div>
-      </section>
-    </div>
-  </div>
-
-  <div id="dayModal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="modalDate" style="margin:0;font-weight:900;font-size:1.05rem"></h3>
-        <button class="close-btn" type="button" id="closeModal">×</button>
+  <div class="modal" id="dayModal" aria-hidden="true">
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalDate">
+      <div class="section-head"><h2 id="modalDate"></h2><button class="icon-btn" type="button" id="closeModal" aria-label="Close">✕</button></div>
+      <div class="note">Attendance</div>
+      <div class="choices" style="margin-top:8px"><button class="choice" id="presentBtn" type="button">Present</button><button class="choice absent" id="absentBtn" type="button">Absent</button></div>
+      <div class="note" style="margin-top:14px">Overtime pay</div>
+      <div class="choices" id="otChoices" style="margin-top:8px">
+        <button class="choice" type="button" data-ot="none">None</button><button class="choice" type="button" data-ot="half">Half day</button><button class="choice" type="button" data-ot="full">Full day</button><button class="choice" type="button" data-ot="custom">Custom</button>
       </div>
-
-      <div class="modal-actions">
-        <button class="mini-btn green" type="button" id="markPresent">Present</button>
-        <button class="mini-btn red" type="button" id="markAbsent">Absent</button>
-      </div>
-
-      <div style="margin-top:14px">
-        <div style="font-size:10px;font-weight:900;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px">Overtime</div>
-        <div class="modal-actions">
-          <button class="mini-btn orange" type="button" data-ot="none">None</button>
-          <button class="mini-btn orange" type="button" data-ot="half">Half</button>
-          <button class="mini-btn orange" type="button" data-ot="full">Full</button>
-          <button class="mini-btn active" type="button" data-ot="custom">Custom</button>
-        </div>
-
-        <div id="customAmountWrap" class="custom-amount">
-          <input id="customAmountInput" type="number" min="0" step="1" placeholder="NT$ amount" style="width:100%; border:1px solid var(--border); background:var(--soft); padding:11px 12px; border-radius:12px; font-weight:700" />
-        </div>
-      </div>
-
-      <div class="small-note" id="modalNote"></div>
-
-      <div style="margin-top:16px">
-        <button class="primary-btn" id="saveDayBtn" type="button">Save day</button>
-      </div>
-    </div>
+      <div class="field hidden" id="customWrap" style="margin-top:10px"><label for="customAmount">Custom amount (NT$)</label><input id="customAmount" type="number" min="0" step="1" inputmode="decimal" placeholder="0"></div>
+      <div class="modal-actions"><button class="btn" id="cancelDay" type="button">Cancel</button><button class="btn primary" id="saveDay" type="button">Save day</button></div>
+    </section>
   </div>
 
   <script>
-    const STORAGE_KEY = "finance_manager_data_v1";
-
-    const defaultState = {
-      baseSalary: 32000,
-      rentAllowance: 5000,
-      transportAllowance: 1200,
-      healthInsuranceAllowance: 400,
-      currentMonth: getDefaultMonth(),
-      records: {},
-      transactions: []
-    };
-
-    let state = loadState();
-
-    const expenseCategories = [
-      "Food & Dining",
-      "Education",
-      "Transportation",
-      "Shopping",
-      "Utilities & Bills",
-      "Entertainment",
-      "Healthcare",
-      "Misc"
-    ];
-    const incomeCategories = [
-      "Freelance & Side Work",
-      "Investments",
-      "Selling Items",
-      "Bonus / Gift",
-      "Other Income"
-    ];
-
-    const categoryColors = {
-      "Food & Dining": "bg-amber-500",
-      "Education": "bg-indigo-500",
-      "Transportation": "bg-blue-500",
-      "Shopping": "bg-pink-500",
-      "Utilities & Bills": "bg-purple-500",
-      "Entertainment": "bg-emerald-500",
-      "Healthcare": "bg-rose-500",
-      "Misc": "bg-slate-400"
-    };
-
-    const monthInput = document.getElementById("monthInput");
-    const statsCards = document.getElementById("statsCards");
-    const calendarEl = document.getElementById("calendar");
-    const salaryBreakdown = document.getElementById("salaryBreakdown");
-    const auditInfo = document.getElementById("auditInfo");
-    const txList = document.getElementById("txList");
-    const txForm = document.getElementById("txForm");
-    const txType = document.getElementById("txType");
-    const txCategory = document.getElementById("txCategory");
-    const txDate = document.getElementById("txDate");
-    const txAmount = document.getElementById("txAmount");
-    const txDescription = document.getElementById("txDescription");
-
-    function getDefaultMonth() {
-      const now = new Date();
-      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return JSON.parse(JSON.stringify(defaultState));
-        const saved = JSON.parse(raw);
-        return {
-          ...JSON.parse(JSON.stringify(defaultState)),
-          ...saved,
-          records: saved.records || {},
-          transactions: saved.transactions || []
-        };
-      } catch {
-        return JSON.parse(JSON.stringify(defaultState));
-      }
-    }
-
-    function formatMoney(v) {
-      return "NT$" + Number(v || 0).toLocaleString();
-    }
-
-    function getActiveCategoryOptions() {
-      const selected = txType.value;
-      return selected === "income" ? incomeCategories : expenseCategories;
-    }
-
-    function populateCategories() {
-      const options = getActiveCategoryOptions();
-      txCategory.innerHTML = "";
-      options.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        txCategory.appendChild(opt);
-      });
-    }
-
-    function monthInfo(month) {
-      const [y, m] = month.split("-").map(Number);
-      const daysInMonth = new Date(y, m, 0).getDate();
-      const firstDayIndex = new Date(y, m - 1, 1).getDay();
-      const totalFDE = (() => {
-        let half = 0;
-        let full = 0;
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dayNum = new Date(y, m - 1, d).getDay();
-          if ([1, 2, 3].includes(dayNum)) half++;
-          else if ([0, 5, 6].includes(dayNum)) full++;
-        }
-        return half * 0.5 + full;
-      })();
-
-      const fullRate = totalFDE > 0 ? state.baseSalary / totalFDE : 0;
-      const halfRate = fullRate / 2;
-
-      return { y, m, daysInMonth, firstDayIndex, totalFDE, fullRate, halfRate };
-    }
-
-    function getMonthTransactions(month) {
-      return state.transactions.filter(tx => tx.date.startsWith(month));
-    }
-
-    function computeValuesForMonth(month) {
-      const info = monthInfo(month);
-      const totalDeductions = Object.keys(state.records || {})
-        .filter(date => date.startsWith(month))
-        .reduce((sum, date) => {
-          const rec = state.records[date] || {};
-          if (rec.absent) {
-            const day = new Date(date).getDay();
-            if ([1,2,3].includes(day)) return sum + info.halfRate;
-            if ([0,5,6].includes(day)) return sum + info.fullRate;
-          }
-          return sum;
-        }, 0);
-
-      const overtimeTotal = Object.keys(state.records || {})
-        .filter(date => date.startsWith(month))
-        .reduce((sum, date) => {
-          const rec = state.records[date] || {};
-          const overtime = Number(rec.overtime || 0);
-          return sum + overtime;
-        }, 0);
-
-      const jobSalary = (state.baseSalary - totalDeductions) + state.rentAllowance + state.transportAllowance + state.healthInsuranceAllowance + overtimeTotal;
-
-      const monthTx = getMonthTransactions(month);
-      const incomeTotal = monthTx.filter(tx => tx.type === "income").reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-      const expenseTotal = monthTx.filter(tx => tx.type === "expense").reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-
-      const net = (jobSalary + incomeTotal) - expenseTotal;
-
-      return {
-        ...info,
-        totalDeductions,
-        overtimeTotal,
-        jobSalary,
-        incomeTotal,
-        expenseTotal,
-        net
-      };
-    }
-
-    function renderStats() {
-      const values = computeValuesForMonth(state.currentMonth);
-
-      const cards = [
-        { icon: "💰", label: "Net Savings", value: formatMoney(values.net), color: "blue" },
-        { icon: "💼", label: "Job Salary", value: formatMoney(values.jobSalary), color: "indigo" },
-        { icon: "📈", label: "Income", value: formatMoney(values.incomeTotal), color: "green" },
-        { icon: "📉", label: "Expenses", value: formatMoney(values.expenseTotal), color: "red" },
-        { icon: "⚡", label: "OT Pay", value: formatMoney(values.overtimeTotal), color: "amber" }
-      ];
-
-      statsCards.innerHTML = cards.map(card => `
-        <div class="stat">
-          <div class="stat-icon ${card.color}">${card.icon}</div>
-          <div>
-            <div class="stat-label">${card.label}</div>
-            <div class="stat-value">${card.value}</div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderSalaryBreakdown() {
-      const values = computeValuesForMonth(state.currentMonth);
-      const rows = [
-        { label: "Base Salary", val: state.baseSalary, type: "normal" },
-        { label: "Rent Allowance", val: state.rentAllowance, type: "income" },
-        { label: "Transport Allowance", val: state.transportAllowance, type: "income" },
-        { label: "Health Insurance", val: state.healthInsuranceAllowance, type: "income" },
-        { label: "Overtime Pay", val: values.overtimeTotal, type: "income" },
-        { label: "Absence Deductions", val: values.totalDeductions, type: "expense" },
-        { label: "Calculated Salary", val: values.jobSalary, type: "total" }
-      ];
-
-      salaryBreakdown.innerHTML = rows.map(row => {
-        const sign = row.type === "expense" ? "-" : row.type === "income" ? "+" : "";
-        const colorClass = row.type === "income" ? "income" : row.type === "expense" ? "expense" : "total";
-        const prefix = row.type === "total" ? "" : sign;
-        return `
-          <div class="money-row ${colorClass}">
-            <span>${row.label}</span>
-            <strong>${prefix}${formatMoney(row.val)}</strong>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderAuditInfo() {
-      const values = computeValuesForMonth(state.currentMonth);
-      const halfAbsences = Object.keys(state.records || {}).filter(date => date.startsWith(state.currentMonth)).filter(date => {
-        const rec = state.records[date] || {};
-        const d = new Date(date).getDay();
-        return rec.absent && [1,2,3].includes(d);
-      }).length;
-
-      const fullAbsences = Object.keys(state.records || {}).filter(date => date.startsWith(state.currentMonth)).filter(date => {
-        const rec = state.records[date] || {};
-        const d = new Date(date).getDay();
-        return rec.absent && [0,5,6].includes(d);
-      }).length;
-
-      const html = `
-        <div class="audit-row"><span>Month FDE</span><strong>${values.totalFDE}</strong></div>
-        <div class="audit-row"><span>Half day rate</span><strong>${formatMoney(values.halfRate)}</strong></div>
-        <div class="audit-row"><span>Full day rate</span><strong>${formatMoney(values.fullRate)}</strong></div>
-        <div class="audit-row"><span>Half absences</span><strong>${halfAbsences}</strong></div>
-        <div class="audit-row"><span>Full absences</span><strong>${fullAbsences}</strong></div>
-      `;
-      auditInfo.innerHTML = html;
-    }
-
-    function renderCalendar() {
-      const month = state.currentMonth;
-      const info = monthInfo(month);
-      const records = state.records || {};
-      const days = [];
-      for (let i = 0; i < info.firstDayIndex; i++) {
-        days.push({ empty: true });
-      }
-
-      for (let d = 1; d <= info.daysInMonth; d++) {
-        const date = `${month}-${String(d).padStart(2,"0")}`;
-        const dayIndex = new Date(info.y, info.m - 1, d).getDay();
-        const rec = records[date] || {};
-        const absent = !!rec.absent;
-        const overtime = Number(rec.overtime || 0);
-
-        let cls = "calendar-day";
-        let tag = "";
-
-        if (dayIndex === 4) {
-          cls += " day-off";
-          tag = "Off";
-        } else if (absent) {
-          cls += " day-absent";
-          tag = "Absent";
-        } else if ([1,2,3].includes(dayIndex)) {
-          cls += " day-half";
-          tag = "Half";
-        } else if ([0,5,6].includes(dayIndex)) {
-          cls += " day-full";
-          tag = "Full";
-        }
-
-        days.push({
-          empty: false,
-          date,
-          dayIndex,
-          dayNum: d,
-          tag,
-          absent,
-          overtime,
-          cls
-        });
-      }
-
-      const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-      const headerHtml = names.map(n => `<div class="day-name">${n}</div>`).join("");
-      const calHtml = days.map(item => {
-        if (item.empty) return `<div class="calendar-day empty"></div>`;
-        const overtimeBadge = item.overtime > 0 ? `<div class="ot-badge">+${formatMoney(item.overtime).replace("NT$","")}</div>` : "";
-        return `
-          <button class="${item.cls}" type="button" data-date="${item.date}">
-            ${overtimeBadge}
-            <span class="day-number">${item.dayNum}</span>
-            <span class="day-tag">${item.tag || ""}</span>
-          </button>
-        `;
-      }).join("");
-
-      calendarEl.innerHTML = headerHtml + calHtml;
-
-      document.querySelectorAll(".calendar-day[data-date]").forEach(btn => {
-        btn.addEventListener("click", () => openModal(btn.dataset.date));
-      });
-    }
-
-    function renderTransactions() {
-      const monthTx = getMonthTransactions(state.currentMonth).sort((a,b) => new Date(b.date) - new Date(a.date));
-      if (!monthTx.length) {
-        txList.innerHTML = `
-          <div style="padding:22px;text-align:center;color:#94a3b8;font-weight:700;">
-            No entries for this month yet.
-          </div>
-        `;
-        return;
-      }
-
-      txList.innerHTML = monthTx.map(tx => {
-        const isIncome = tx.type === "income";
-        const sign = isIncome ? "+" : "-";
-        const amountClass = isIncome ? "tx-income-text" : "tx-expense-text";
-        const icon = isIncome ? "↗" : "↘";
-        return `
-          <div class="tx">
-            <div class="tx-left">
-              <div class="tx-icon ${isIncome ? "tx-income" : "tx-expense"}">${icon}</div>
-              <div class="tx-info">
-                <div class="tx-name">${tx.description}</div>
-                <div class="tx-meta">
-                  <span>${tx.category}</span>
-                  <span>${tx.date}</span>
-                </div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div class="tx-amount ${amountClass}">${sign}${formatMoney(tx.amount)}</div>
-              <button type="button" class="delete-btn" data-delete="${tx.id}" aria-label="delete">×</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      document.querySelectorAll("[data-delete]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-delete");
-          state.transactions = state.transactions.filter(tx => tx.id !== id);
-          saveState();
-          renderAll();
-        });
-      });
-    }
-
-    function renderAll() {
-      renderStats();
-      renderSalaryBreakdown();
-      renderAuditInfo();
-      renderCalendar();
-      renderTransactions();
-    }
-
-    function openModal(dateStr) {
-      const modal = document.getElementById("dayModal");
-      const modalDate = document.getElementById("modalDate");
-      const note = document.getElementById("modalNote");
-      const customAmountWrap = document.getElementById("customAmountWrap");
-      const customAmountInput = document.getElementById("customAmountInput");
-
-      modalDate.textContent = dateStr;
-      const rec = state.records[dateStr] || {};
-      note.textContent = "This month’s half-day and full-day rates update automatically.";
-
-      const currentOT = Number(rec.overtime || 0);
-      const info = monthInfo(state.currentMonth);
-
-      const setCustom = () => {
-        customAmountWrap.classList.add("show");
-      };
-      const hideCustom = () => {
-        customAmountWrap.classList.remove("show");
-      };
-
-      const setActive = (otMode) => {
-        document.querySelectorAll("[data-ot]").forEach(btn => {
-          btn.classList.toggle("active", btn.dataset.ot === otMode);
-        });
-      };
-
-      let chosen = rec.overtime != null ? "custom" : "none";
-
-      if (currentOT === Math.round(info.halfRate)) chosen = "half";
-      if (currentOT === Math.round(info.fullRate)) chosen = "full";
-      if (currentOT === 0) chosen = "none";
-
-      setActive(chosen);
-
-      if (chosen === "custom") {
-        setCustom();
-        customAmountInput.value = currentOT || "";
-      } else {
-        hideCustom();
-      }
-
-      document.querySelectorAll("[data-ot]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const mode = btn.dataset.ot;
-          setActive(mode);
-          if (mode === "custom") {
-            setCustom();
-            customAmountInput.focus();
-          } else {
-            hideCustom();
-          }
-        });
-      });
-
-      document.getElementById("markPresent").onclick = () => {
-        const rec2 = state.records[dateStr] || {};
-        rec2.absent = false;
-        state.records[dateStr] = rec2;
-        saveState();
-        renderAll();
-        closeModal();
-      };
-
-      document.getElementById("markAbsent").onclick = () => {
-        const rec2 = state.records[dateStr] || {};
-        rec2.absent = true;
-        state.records[dateStr] = rec2;
-        saveState();
-        renderAll();
-        closeModal();
-      };
-
-      document.getElementById("saveDayBtn").onclick = () => {
-        const rec2 = state.records[dateStr] || {};
-        const selected = document.querySelector("[data-ot].active")?.dataset.ot || "none";
-        if (selected === "none") {
-          rec2.overtime = 0;
-        } else if (selected === "half") {
-          rec2.overtime = Math.round(info.halfRate);
-        } else if (selected === "full") {
-          rec2.overtime = Math.round(info.fullRate);
-        } else {
-          rec2.overtime = Number(customAmountInput.value || 0);
-        }
-        state.records[dateStr] = rec2;
-        saveState();
-        renderAll();
-        closeModal();
-      };
-
-      modal.classList.add("show");
-      modal.setAttribute("aria-hidden", "false");
-    }
-
-    function closeModal() {
-      const modal = document.getElementById("dayModal");
-      modal.classList.remove("show");
-      modal.setAttribute("aria-hidden", "true");
-    }
-
-    document.getElementById("closeModal").addEventListener("click", closeModal);
-    document.getElementById("dayModal").addEventListener("click", (e) => {
-      if (e.target.id === "dayModal") closeModal();
-    });
-
-    monthInput.addEventListener("change", (e) => {
-      state.currentMonth = e.target.value || getDefaultMonth();
-      saveState();
-      renderAll();
-    });
-
-    txType.addEventListener("change", populateCategories);
-
-    txForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const desc = txDescription.value.trim();
-      const amount = Number(txAmount.value);
-      const date = txDate.value;
-
-      if (!desc || !date || !amount) return;
-
-      state.transactions.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-        type: txType.value,
-        category: txCategory.value,
-        description: desc,
-        amount: amount,
-        date
-      });
-
-      saveState();
-      txForm.reset();
-      txType.value = "expense";
-      populateCategories();
-      txDate.value = new Date().toISOString().split("T")[0];
-      renderAll();
-    });
-
-    function initialize() {
-      monthInput.value = state.currentMonth;
-      txDate.value = new Date().toISOString().split("T")[0];
-      populateCategories();
-      renderAll();
-    }
-
-    initialize();
+    'use strict';
+    const STORAGE_KEY = 'finance_manager_data_v1';
+    const defaults = {baseSalary:32000,rentAllowance:5000,transportAllowance:1200,healthInsuranceAllowance:400,currentMonth:defaultMonth(),records:{},transactions:[]};
+    const expenseCategories=['Food & Dining','Education','Transportation','Shopping','Utilities & Bills','Entertainment','Healthcare','Misc'];
+    const incomeCategories=['Freelance & Side Work','Investments','Selling Items','Bonus / Gift','Other Income'];
+    let state=loadState(), editingDate=null, dayDraft={absent:false,mode:'none',amount:''};
+    const $=id=>document.getElementById(id);
+    function defaultMonth(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`}
+    function localDateString(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+    function weekday(date){const [y,m,d]=date.split('-').map(Number);return new Date(y,m-1,d).getDay()}
+    function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return {...defaults};const s=JSON.parse(raw);return {...defaults,...s,records:s.records&&typeof s.records==='object'?s.records:{},transactions:Array.isArray(s.transactions)?s.transactions:[]}}catch{return {...defaults}}}
+    function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));$('status').textContent='Saved on this device.';return true}catch(e){$('status').textContent='Could not save. Storage may be full; export a backup or remove old data.';return false}}
+    function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function money(v){return 'NT$'+Math.round(Number(v)||0).toLocaleString('en-US')}
+    function monthInfo(month){const [y,m]=month.split('-').map(Number);const days=new Date(y,m,0).getDate(),first=new Date(y,m-1,1).getDay();let half=0,full=0;for(let d=1;d<=days;d++){const w=new Date(y,m-1,d).getDay();if([1,2,3].includes(w))half++;else if([0,5,6].includes(w))full++}const fde=half*.5+full,fullRate=fde?state.baseSalary/fde:0;return{y,m,days,first,half,full,fde,fullRate,halfRate:fullRate/2}}
+    function monthTransactions(month){return state.transactions.filter(t=>typeof t.date==='string'&&t.date.startsWith(month))}
+    function calc(month){const i=monthInfo(month);let deductions=0,ot=0;for(const [date,r] of Object.entries(state.records)){if(!date.startsWith(month)||!r)continue;const w=weekday(date);if(r.absent){if([1,2,3].includes(w))deductions+=i.halfRate;else if([0,5,6].includes(w))deductions+=i.fullRate}ot+=Math.max(0,Number(r.overtime)||0)}const tx=monthTransactions(month),income=tx.filter(t=>t.type==='income').reduce((s,t)=>s+(Number(t.amount)||0),0),expenses=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+(Number(t.amount)||0),0);const salary=state.baseSalary-deductions+state.rentAllowance+state.transportAllowance+state.healthInsuranceAllowance+ot;return{...i,deductions,ot,income,expenses,salary,net:salary+income-expenses}}
+    function render(){const month=state.currentMonth||defaultMonth();$('monthInput').value=month;const v=calc(month);$('statsCards').innerHTML=`<article class="card stat"><div class="label">Net balance</div><div class="value ${v.net<0?'red':'blue'}">${money(v.net)}</div></article><article class="card stat"><div class="label">Job salary</div><div class="value">${money(v.salary)}</div></article><article class="card stat"><div class="label">Expenses</div><div class="value red">${money(v.expenses)}</div></article>`;
+      $('salaryNote').textContent=`Estimated from ${money(state.baseSalary)} base salary and this month's recorded absences and overtime.`;
+      const rows=[['Base salary',state.baseSalary,''],['Rent allowance',state.rentAllowance,'+'],['Transport allowance',state.transportAllowance,'+'],['Health insurance',state.healthInsuranceAllowance,'+'],['Overtime',v.ot,'+'],['Absence deductions',v.deductions,'−'],['Calculated job salary',v.salary,'']];$('salaryBreakdown').innerHTML=rows.map((r,n)=>`<div class="money-row ${n===rows.length-1?'total':''}"><span>${r[0]}</span><strong>${r[1]===''?money(r[1]):r[2]+money(r[1])}</strong></div>`).join('')+`<p class="note">${v.half} half-days and ${v.full} full-days in month; daily rate uses ${v.fde} full-day equivalents (FDE).</p>`;
+      renderCalendar(month);renderTransactions(month);}
+    function renderCalendar(month){const i=monthInfo(month),names=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];let html=names.map(n=>`<div class="day-name">${n}</div>`).join('');for(let n=0;n<i.first;n++)html+='<span></span>';for(let d=1;d<=i.days;d++){const date=`${month}-${String(d).padStart(2,'0')}`,w=weekday(date),r=state.records[date]||{},off=w===4,half=[1,2,3].includes(w),absent=!!r.absent,cls=off?'off':absent?'absent':half?'':'full',tag=off?'Off':absent?'Absent':half?'Half':'Full',ot=Number(r.overtime)||0;html+=`<button type="button" class="day ${cls}" data-date="${date}" ${off?'disabled':''} aria-label="${date}, ${tag}${ot?`, overtime ${money(ot)}`:''}"><span>${d}</span><span class="tag">${tag}</span>${ot?`<span class="ot">+${money(ot)}</span>`:''}</button>`}$('calendar').innerHTML=html}
+    function renderTransactions(month){const tx=monthTransactions(month).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));$('txCount').textContent=`${tx.length} ${tx.length===1?'entry':'entries'}`;if(!tx.length){$('txList').innerHTML='<div class="empty">No entries for this month yet.</div>';return} $('txList').innerHTML=tx.map(t=>{const income=t.type==='income';return `<article class="tx"><div class="tx-main"><div class="tx-desc">${esc(t.description)}</div><div class="tx-meta">${esc(t.category||'Misc')} · ${esc(t.date)}</div></div><div class="tx-right"><strong class="${income?'green':'red'}">${income?'+':'−'}${money(t.amount)}</strong><button class="delete" type="button" data-delete="${esc(t.id)}" aria-label="Delete ${esc(t.description)}">×</button></div></article>`}).join('')}
+    function populateCategories(){const old=$('txCategory').value,items=$('txType').value==='income'?incomeCategories:expenseCategories;$('txCategory').innerHTML=items.map(x=>`<option>${esc(x)}</option>`).join('');if(items.includes(old))$('txCategory').value=old}
+    function openDay(date){editingDate=date;const r=state.records[date]||{};dayDraft={absent:!!r.absent,mode:'none',amount:''};const v=calc(state.currentMonth),value=Number(r.overtime)||0;if(value){if(value===Math.round(v.halfRate))dayDraft.mode='half';else if(value===Math.round(v.fullRate))dayDraft.mode='full';else{dayDraft.mode='custom';dayDraft.amount=String(value)}}$('modalDate').textContent=date;updateModal();$('dayModal').classList.add('show');$('dayModal').setAttribute('aria-hidden','false')}
+    function updateModal(){$('presentBtn').classList.toggle('selected',!dayDraft.absent);$('absentBtn').classList.toggle('selected',dayDraft.absent);document.querySelectorAll('[data-ot]').forEach(b=>b.classList.toggle('selected',b.dataset.ot===dayDraft.mode));$('customWrap').classList.toggle('hidden',dayDraft.mode!=='custom');$('customAmount').value=dayDraft.amount;const v=calc(state.currentMonth);document.querySelector('[data-ot="half"]').textContent=`Half (${money(v.halfRate)})`;document.querySelector('[data-ot="full"]').textContent=`Full (${money(v.fullRate)})`}
+    function closeDay(){$('dayModal').classList.remove('show');$('dayModal').setAttribute('aria-hidden','true');editingDate=null}
+    function saveDay(){if(!editingDate)return;const v=calc(state.currentMonth);let overtime=dayDraft.mode==='half'?Math.round(v.halfRate):dayDraft.mode==='full'?Math.round(v.fullRate):dayDraft.mode==='custom'?Math.max(0,Number($('customAmount').value)||0):0;state.records[editingDate]={absent:dayDraft.absent,overtime};saveState();render();closeDay()}
+    function exportBackup(){const payload={app:'Personal Finance Manager',version:1,exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`finance-backup-${defaultMonth()}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);$('status').textContent='Backup exported. Save the JSON file somewhere safe, such as Files or iCloud Drive.'}
+    function importBackup(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result),incoming=parsed.data||parsed;if(!incoming||!Array.isArray(incoming.transactions)||!incoming.records||typeof incoming.records!=='object')throw new Error('not a finance backup');if(!confirm('Import this backup? It will replace the records on this device.'))return;state={...defaults,...incoming,records:incoming.records,transactions:incoming.transactions};if(!/^\d{4}-\d{2}$/.test(state.currentMonth||''))state.currentMonth=defaultMonth();if(!saveState())return;render();$('status').textContent='Backup imported successfully.'}catch{$('status').textContent='Could not import that file. Choose a valid finance backup JSON file.'}finally{$('importFile').value=''}};reader.onerror=()=>{$('status').textContent='Could not read that file.'};reader.readAsText(file)}
+    $('monthInput').addEventListener('change',e=>{state.currentMonth=e.target.value||defaultMonth();saveState();render()});$('txType').addEventListener('change',populateCategories);$('txForm').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('txAmount').value),description=$('txDescription').value.trim(),date=$('txDate').value;if(!description||!date||!Number.isFinite(amount)||amount<=0)return;state.transactions.push({id:globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random()}`,type:$('txType').value,category:$('txCategory').value,description,amount,date});if(saveState()){e.target.reset();$('txType').value='expense';populateCategories();$('txDate').value=localDateString();render()}});
+    $('calendar').addEventListener('click',e=>{const b=e.target.closest('[data-date]');if(b&&!b.disabled)openDay(b.dataset.date)});$('txList').addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(!b)return;if(confirm('Delete this transaction?')){state.transactions=state.transactions.filter(t=>String(t.id)!==b.dataset.delete);saveState();render()}});$('presentBtn').addEventListener('click',()=>{dayDraft.absent=false;updateModal()});$('absentBtn').addEventListener('click',()=>{dayDraft.absent=true;updateModal()});$('otChoices').addEventListener('click',e=>{const b=e.target.closest('[data-ot]');if(b){dayDraft.mode=b.dataset.ot;updateModal()}});$('customAmount').addEventListener('input',e=>dayDraft.amount=e.target.value);$('closeModal').addEventListener('click',closeDay);$('cancelDay').addEventListener('click',closeDay);$('saveDay').addEventListener('click',saveDay);$('dayModal').addEventListener('click',e=>{if(e.target===$('dayModal'))closeDay()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDay()});
+    function bindBackup(buttonId,action){$(buttonId).addEventListener('click',action)}bindBackup('exportBtn',exportBackup);bindBackup('exportBtn2',exportBackup);const chooseFile=()=>$('importFile').click();bindBackup('importBtn',chooseFile);bindBackup('importBtn2',chooseFile);$('importFile').addEventListener('change',e=>importBackup(e.target.files[0]));
+    $('txDate').value=localDateString();populateCategories();render();
   </script>
 </body>
 </html>
