@@ -1,1 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none"><defs><linearGradient id="purple" x1="48" y1="24" x2="461" y2="488" gradientUnits="userSpaceOnUse"><stop stop-color="#B45AE8"/><stop offset="1" stop-color="#7829C7"/></linearGradient><linearGradient id="gold" x1="195" y1="110" x2="331" y2="264" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE39A"/><stop offset="1" stop-color="#EAAE47"/></linearGradient><filter id="shadow" x="65" y="86" width="385" height="365" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#43177A" flood-opacity=".32"/></filter></defs><rect width="512" height="512" rx="112" fill="url(#purple)"/><path d="M0 125C123 49 308 40 512 111V0H0v125Z" fill="#fff" opacity=".1"/><g filter="url(#shadow)"><path d="m162 231 111-113a18 18 0 0 1 25 0l99 99a18 18 0 0 1 0 25l-82 82-153-93Z" fill="url(#gold)"/><path d="m187 230 96-95 83 83-70 70-109-58Z" fill="#9D6B38" opacity=".78"/><circle cx="284" cy="222" r="29" fill="none" stroke="#F9D783" stroke-width="12"/><path d="M115 227h278a31 31 0 0 1 31 31v117a31 31 0 0 1-31 31H130a38 38 0 0 1-38-38V265a38 38 0 0 1 23-38Z" fill="#FFFDF9"/><path d="M92 271h300a19 19 0 0 1 19 19v34H310a42 42 0 0 0 0 84h101v-33a31 31 0 0 1-18 29H130a38 38 0 0 1-38-38V271Z" fill="#F2ECF8"/><path d="M307 324h104v84H307a42 42 0 0 1 0-84Z" fill="#FFFDF9"/><circle cx="331" cy="366" r="12" fill="#8B35CE"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Personal Finance Manager</title>
+  <desc id="desc">A white wallet with gold financial bars and an upward arrow on a turquoise background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="58" y1="30" x2="454" y2="482" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DE4E7"/>
+      <stop offset="1" stop-color="#25C5CE"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="260" y1="252" x2="350" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D99D45"/>
+      <stop offset="1" stop-color="#FFE0A0"/>
+    </linearGradient>
+    <filter id="shadow" x="86" y="188" width="344" height="286" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="14" stdDeviation="13" flood-color="#168D99" flood-opacity=".28"/>
+    </filter>
+    <filter id="soft" x="132" y="116" width="274" height="190" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#168D99" flood-opacity=".2"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M75 111C175 54 331 46 438 83" fill="none" stroke="#B8F4F2" stroke-linecap="round" stroke-width="18" opacity=".34"/>
+  <g filter="url(#soft)">
+    <rect x="273" y="172" width="43" height="118" rx="12" fill="url(#gold)"/>
+    <rect x="329" y="132" width="43" height="158" rx="12" fill="url(#gold)"/>
+    <rect x="217" y="211" width="43" height="79" rx="12" fill="url(#gold)"/>
+    <rect x="161" y="247" width="43" height="43" rx="12" fill="url(#gold)"/>
+  </g>
+  <path d="M145 249 216 185l42 25 107-112" fill="none" stroke="#FFFDF9" stroke-linecap="round" stroke-linejoin="round" stroke-width="22"/>
+  <path d="m348 97 29 2-4 30" fill="none" stroke="#FFFDF9" stroke-linecap="round" stroke-linejoin="round" stroke-width="22"/>
+  <g filter="url(#shadow)">
+    <path d="M111 245c0-25 20-45 45-45h210c25 0 45 20 45 45v150c0 25-20 45-45 45H150c-22 0-39-17-39-39V245Z" fill="#FFFDF9"/>
+    <path d="M111 270h274c18 0 33 15 33 33v38H287c-31 0-56 25-56 56s25 56 56 56h131c-11 13-27 21-45 21H150c-22 0-39-17-39-39V270Z" fill="#F4F1EC"/>
+    <path d="M287 341h131v112H287c-31 0-56-25-56-56s25-56 56-56Z" fill="#FFFDF9"/>
+    <rect x="345" y="379" width="25" height="25" rx="12.5" fill="#E2AD58"/>
+  </g>
+</svg>
